@@ -1,0 +1,59 @@
+abilify (aripiprazole): 0
+acebutolol (sectral): 1
+albuterol: 2
+alteplase: 3
+analgesic: 4
+antacid: 5
+antidiarrhoeal: 6
+antifungal liquids: 7
+antifungal sprays: 8
+antifungal cream: 9
+antihistamine: 10
+antihypertensive drug: 11
+antipsychotics: 12
+antiviral drugs: 13
+artemisinin-based combination therapies: 14
+benazepril (lotensin): 15
+chloramphenicol: 16
+chloroquine phosphate: 17
+cholinesterase inhibitors: 18
+diuretic: 19
+dpp-4 inhibitors: 20
+ferrous sulfate: 21
+glp-1 receptor agonists: 22
+immunosuppressive drug: 23
+imodium: 24
+insulin: 25
+intravenous: 26
+isoniazid (antibiotics): 27
+levalbuterol: 28
+levothyroxine: 29
+lidocaine: 30
+lyrics(pregabalin): 31
+meglitinides: 32
+metformin: 33
+nasal decongestants: 34
+nifedipine: 35
+no medicine: 36
+no medicine (consult doctor immediately): 37
+no medicine available (consult doctor): 38
+no medicine....: 39
+nonsteroidal anti-inflammatory drugs (nsaids): 40
+oseltamivir (tamiflu): 41
+penicillin: 42
+pepto-bismol,: 43
+polio vaccine (opv): 44
+proton pump inhibitors: 45
+proton-pump inhibitor: 46
+sedative: 47
+selective serotonin reuptake inhibitors (ssris): 48
+sglt2 inhibitors: 49
+statin: 50
+steroid: 51
+stimulant: 52
+sulfonylureas: 53
+tecovirimat (tpoxx): 54
+thiazolidinediones: 55
+ursodeoxycholic acid (udca)
+
+: 56

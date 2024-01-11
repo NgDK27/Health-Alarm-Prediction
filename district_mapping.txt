@@ -1,0 +1,6 @@
+Binh Thanh District: 0
+d1: 1
+d10: 2
+d2: 3
+d4: 4
+d5: 5
