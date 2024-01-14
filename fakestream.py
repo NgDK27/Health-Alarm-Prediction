@@ -1,5 +1,4 @@
-
-
+from flask_socketio import emit
 import csv
 from faker import Faker
 from faker.providers import DynamicProvider
@@ -7,11 +6,14 @@ import random
 import pymongo
 import time
 from datetime import datetime, timedelta
+import json
+import pandas as pd
+import boto3
 
 # MongoDB Connection Setup
 client = pymongo.MongoClient("mongodb+srv://saurabh:Solarwind%401@companydata.g6xbxk5.mongodb.net/")  # Replace with your MongoDB URI
 db = client["asm3"]  # Replace with your database name
-collection = db["streaming_data"]  # Replace with your collection name
+collection = db["result"]  # Replace with your collection name
 
 # Function to read CSV and return a list of rows along with column names
 def read_csv_to_list(csv_file_path):
@@ -39,6 +41,7 @@ district_coordinates = {
     'Thu Duc District': (10.82202275, 106.71830155362943)
 }
 
+
 # Create a Dynamic Provider with the CSV data
 class CSVDataProvider(DynamicProvider):
     def __init__(self, elements):
@@ -52,9 +55,6 @@ fake = Faker()
 csv_data_provider = CSVDataProvider(csv_data)
 fake.add_provider(csv_data_provider)
 
-# Function to generate a random number for suffering population
-def generate_suffering_population():
-    return random.randint(100, 1000)  # Adjust the range as needed
 
 # Function to assign latitude and longitude to a row
 def assign_lat_long(district_coordinates):
@@ -74,6 +74,21 @@ def update_lat_long_assignment(csv_data, district_coordinates):
 
 # Initial assignment
 update_lat_long_assignment(csv_data, district_coordinates)
+
+sagemaker_runtime = boto3.client('sagemaker-runtime')
+endpoint_name = 'Entry43'  # Your actual endpoint name
+
+# Function to prepare the data for prediction
+def prepare_data_for_prediction(csv_row_dict):
+    all_column_names = list(csv_row_dict.keys())
+    columns_to_exclude = ['medicine_name', 'disease', 'District']
+    remaining_columns = [col for col in all_column_names if col not in columns_to_exclude]
+    data = pd.DataFrame(columns=remaining_columns)
+    for column_name in remaining_columns:
+        data.at[0, column_name] = csv_row_dict[column_name]
+    csv_data = data.to_csv(index=False, header=False)
+    csv_data_bytes = csv_data.encode()
+    return csv_data_bytes
 
 # Function to generate and insert data into MongoDB
 def generate_and_insert_data():
@@ -95,8 +110,26 @@ def generate_and_insert_data():
             # Remove the '_id' field if it exists in the dictionary
             csv_row_dict.pop('_id', None)
 
-            collection.insert_one(csv_row_dict)  # Inserting the data into MongoDB
+            # Prepare the data for prediction
+            csv_data_bytes = prepare_data_for_prediction(csv_row_dict)
+
+            # Make the prediction
+            response = sagemaker_runtime.invoke_endpoint(
+                EndpointName=endpoint_name,
+                ContentType='text/csv',
+                Body=csv_data_bytes
+            )
+            prediction = json.loads(response['Body'].read().decode())
+            print(f"Predictions: {prediction}")
+
+            # Add the prediction to the csv_row_dict and insert it into MongoDB
+            csv_row_dict['prediction'] = prediction
+            collection.insert_one(csv_row_dict)
             print(f"Inserted: {csv_row_dict}")
-            time.sleep(5)  # Wait for 5 seconds
+
+            # Emit a WebSocket event with the inserted data
+            emit('data_inserted', csv_row_dict, broadcast=True)
+
+            time.sleep(60)  # Wait for 60 seconds
 
 generate_and_insert_data()
