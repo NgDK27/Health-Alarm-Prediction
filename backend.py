@@ -1,20 +1,26 @@
 import json
+from flask import send_from_directory
 from flask import Flask, jsonify, send_file
 from flask_socketio import SocketIO, emit
 from flask_pymongo import PyMongo
 from bson.json_util import dumps
+from flask_cors import CORS
 import folium
 import pymongo
 
 app = Flask(__name__)
-app.config["MONGO_URI"] = "mongodb+srv://saurabh:Solarwind%401@companydata.g6xbxk5.mongodb.net/"  
+CORS(app)
+app.config["MONGO_URI"] = "mongodb+srv://saurabh:Solarwind%401@companydata.g6xbxk5.mongodb.net/asm3"  
 mongo = PyMongo(app)
 socketio = SocketIO(app, cors_allowed_origins="*")  # Allow CORS for all origins
-
+# Check if the connection was successful
+if mongo.db is None:
+    print("Failed to connect to MongoDB")
+    exit(1)
 @app.route('/api/data')
 def get_data():
-    data = mongo.db.result.find()  
-    return jsonify(dumps(data))
+    data = list(mongo.db.streaming_data.find())  # Convert the cursor to a list
+    return jsonify(dumps(data))  # Convert the list to JSON and return it
 
 @socketio.on('connect')
 def handle_connect():
@@ -23,6 +29,10 @@ def handle_connect():
 @socketio.on('disconnect')
 def handle_disconnect():
     print('Client disconnected')
+
+# @app.route('/map.html')
+# def serve_static(filename):
+#     return send_from_directory('http://127.0.0.1:5500', filename)
 
 @app.route('/map')
 def map():
@@ -97,10 +107,12 @@ def map():
             ).add_to(m)
         # Save the map to a separate HTML file
         m.save('map.html')
+
+        
     # Modify the MongoDB connection details as needed
-    client = pymongo.MongoClient("mongodb+srv://saurabh:Solarwind%401@companydata.g6xbx.mongodb.net/")
+    client = pymongo.MongoClient("mongodb+srv://saurabh:Solarwind%401@companydata.g6xbxk5.mongodb.net/")
     db = client["asm3"]
-    collection = db["result"]
+    collection = db["streaming_data"]
 
     # Path to the GeoJSON file
     geojson_path = './district-boundary-hcm-city.geojson'
@@ -108,7 +120,7 @@ def map():
     # Call the function to create the map and visualize the data
     create_folium_map(geojson_path, collection)
 
-    return send_file('map.html')
+    return send_from_directory('.', 'map.html')
 
 if __name__ == '__main__':
     socketio.run(app, allow_unsafe_werkzeug=True)
