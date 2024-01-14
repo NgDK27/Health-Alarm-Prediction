@@ -112,7 +112,7 @@ def map():
     # Modify the MongoDB connection details as needed
     client = pymongo.MongoClient("mongodb+srv://saurabh:Solarwind%401@companydata.g6xbxk5.mongodb.net/")
     db = client["asm3"]
-    collection = db["streaming_data"]
+    collection = db["result"]
 
     # Path to the GeoJSON file
     geojson_path = './district-boundary-hcm-city.geojson'

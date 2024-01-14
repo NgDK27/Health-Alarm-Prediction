@@ -42,6 +42,7 @@ district_coordinates = {
 }
 
 
+
 # Create a Dynamic Provider with the CSV data
 class CSVDataProvider(DynamicProvider):
     def __init__(self, elements):
@@ -121,6 +122,7 @@ def generate_and_insert_data():
             )
             prediction = json.loads(response['Body'].read().decode())
             print(f"Predictions: {prediction}")
+
 
             # Add the prediction to the csv_row_dict and insert it into MongoDB
             csv_row_dict['prediction'] = prediction
