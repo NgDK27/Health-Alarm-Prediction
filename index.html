@@ -18,7 +18,7 @@
 </head>
 <body>
     <canvas id="chart"></canvas>
-    <img id="map" src="http://localhost:5000/map" alt="Real-time Map">
+    <!-- <img id="map" src="http://localhost:5000/map" alt="Real-time Map"> -->
     <script>
         var socket = io.connect('http://localhost:5000');  // Replace with your server URL
 
@@ -45,30 +45,27 @@
         });
 
         async function fetchDataAndUpdateChart() {
-        const response = await fetch('http://localhost:5000/api/data');
-        const data = await response.json();
-        console.log(data);
+            const response = await fetch('http://localhost:5000/api/data');
+            const data = await response.json();
+            const dataJson = JSON.parse(data);
+            console.log(dataJson);
+            // Create an object to store the total suffering population for each district
+            const districtSufferingPopulation = {};
 
-            // Handle object data (each property represents a symptom)
-        const symptomNames = Object.keys(data);
-        const timestamps = [data.Timestamp];
-
-        symptomNames.forEach(symptom => {
-            const symptomData = [data[symptom]];
-            chart.data.labels = timestamps;
-            chart.data.datasets.push({
-                label: symptom,
-                data: symptomData,
-                backgroundColor: getRandomColor(),
-                borderColor: getRandomColor(),
-                borderWidth: 1
+            dataJson.forEach(item => {
+                if (!districtSufferingPopulation[item.District]) {
+                    districtSufferingPopulation[item.District] = 0;
+                }
+                districtSufferingPopulation[item.District] += item.Suffering_Population;
             });
-        });
-    
 
-        chart.update();
-    }
+            // Update the chart labels and data
+            chart.data.labels = Object.keys(districtSufferingPopulation);
+            chart.data.datasets[0].data = Object.values(districtSufferingPopulation);
+            chart.update();
 
+        }
+        
         function getRandomColor() {
             // You can implement a function to generate random colors
             // For simplicity, using a static color here
