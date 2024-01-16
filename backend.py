@@ -19,7 +19,7 @@ if mongo.db is None:
     exit(1)
 @app.route('/api/data')
 def get_data():
-    data = list(mongo.db.streaming_data.find())  # Convert the cursor to a list
+    data = list(mongo.db.result.find())  # Convert the cursor to a list
     return jsonify(dumps(data))  # Convert the list to JSON and return it
 
 @socketio.on('connect')
@@ -30,9 +30,6 @@ def handle_connect():
 def handle_disconnect():
     print('Client disconnected')
 
-# @app.route('/map.html')
-# def serve_static(filename):
-#     return send_from_directory('http://127.0.0.1:5500', filename)
 
 @app.route('/map')
 def map():
@@ -97,16 +94,16 @@ def map():
         }
         # Add markers for each data point in MongoDB
         for data_point in data_collection.find():
-            lat, lon = data_point['Latitude'], data_point['Longitude']
-            disease = data_point['Disease']
+            lat, lon = data_point['latitude'], data_point['longitude']
+            disease = data_point['predicted_disease']
             color = disease_colors.get(disease, 'black')  # Use black as the default color
             folium.Marker(
                 [lat, lon], 
                 popup=f"Disease: {disease}, Color: {color}", 
                 icon=folium.Icon(color=color)
             ).add_to(m)
-        # Save the map to a separate HTML file
-        m.save('map.html')
+        # Return the map
+        return m._repr_html_()
 
         
     # Modify the MongoDB connection details as needed
@@ -117,10 +114,11 @@ def map():
     # Path to the GeoJSON file
     geojson_path = './district-boundary-hcm-city.geojson'
 
-    # Call the function to create the map and visualize the data
-    create_folium_map(geojson_path, collection)
+     # Call the create_folium_map function with the path to your GeoJSON file and data collection
+    map_html = create_folium_map(geojson_path, collection)
 
-    return send_from_directory('.', 'map.html')
+    # Return the map as HTML
+    return map_html
 
 if __name__ == '__main__':
     socketio.run(app, allow_unsafe_werkzeug=True)

@@ -129,9 +129,6 @@ def generate_and_insert_data():
             collection.insert_one(csv_row_dict)
             print(f"Inserted: {csv_row_dict}")
 
-            # Emit a WebSocket event with the inserted data
-            emit('data_inserted', csv_row_dict, broadcast=True)
-
             time.sleep(60)  # Wait for 60 seconds
 
 generate_and_insert_data()
