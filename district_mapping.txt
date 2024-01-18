@@ -1,6 +1,18 @@
-Binh Thanh District: 0
-d1: 1
-d10: 2
-d2: 3
-d4: 4
-d5: 5
+Binh Tan District: 0
+Binh Thanh District: 1
+Phu Nhuan District: 2
+Tan Binh District: 3
+Tan Phu District: 4
+Thu Duc District: 5
+d1: 6
+d10: 7
+d11: 8
+d12: 9
+d2: 10
+d3: 11
+d4: 12
+d5: 13
+d6: 14
+d7: 15
+d8: 16
+d9: 17
